@@ -67,10 +67,10 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
         }
     }
 
-    //Below the function getMarsPhotos(), type the code for the companion object.
-    //A companion object helps us by having a single instance of an object that is used by everyone without needing to create a new instance of an expensive object. This is an implementation detail, and separating it lets us make changes without impacting other parts of the app's code.
-    //
-    //The APPLICATION_KEY is part of the ViewModelProvider.AndroidViewModelFactory.Companion object and is used to find the app's MarsPhotosApplication object, which has the container property used to retrieve the repository used for dependency injection.
+    //A companion object helps us by having a single instance of an object that is used by everyone without needing to create a new instance of an expensive object.
+    // This is an implementation detail, and separating it lets us make changes without impacting other parts of the app's code.
+    //The APPLICATION_KEY is part of the ViewModelProvider.
+    // AndroidViewModelFactory.Companion object and is used to find the app's MarsPhotosApplication object, which has the container property used to retrieve the repository used for dependency injection.
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

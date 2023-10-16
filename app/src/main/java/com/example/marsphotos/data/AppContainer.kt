@@ -10,11 +10,11 @@ interface AppContainer {
     val marsPhotosRepository:MarsPhotosRepository
 }
 //code moved from MarsApiService
-//he DefaultAppContainer class implements the interface AppContainer, so we need to override the marsPhotosRepository property.
+//he DefaultAppContainer class implements the interface AppContainer,
+// so we need to override the marsPhotosRepository property.
 class DefaultAppContainer : AppContainer {
 
-    private val baseUrl =
-        "https://android-kotlin-fun-mars-server.appspot.com"
+    private val baseUrl = "https://android-kotlin-fun-mars-server.appspot.com"
 
     /**Use the Retrofit builder to build a retrofit object using a kotlinx.serialization converter
      */
