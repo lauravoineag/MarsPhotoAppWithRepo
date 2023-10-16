@@ -19,9 +19,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.marsphotos.MarsPhotosApplication
+import com.example.marsphotos.data.MarsPhotosRepository
 import com.example.marsphotos.model.MarsPhoto
-import com.example.marsphotos.network.MarsApi
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -35,7 +40,9 @@ sealed interface MarsUiState {
     object Loading : MarsUiState
 }
 
-class MarsViewModel : ViewModel() {
+//Android framework does not allow a ViewModel to be passed values in the constructor when created, we implement a ViewModelProvider.Factory object, which lets us get around this limitation.
+//The Factory pattern is a creational pattern used to create objects. The MarsViewModel.Factory object uses the application container to retrieve the marsPhotosRepository, and then passes this repository to the ViewModel when the ViewModel object is created.
+class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : ViewModel() {
     /** The mutable State that stores the status of the most recent request */
     var marsUiState: MarsUiState by mutableStateOf(MarsUiState.Loading)
         private set
@@ -45,17 +52,32 @@ class MarsViewModel : ViewModel() {
 
     /*** Gets Mars photos information from the Mars API Retrofit service and updates the
      * [MarsPhoto] [List] [MutableList].*/
+    //the ViewModel code to use the repository to get the data
     fun getMarsPhotos() {
         viewModelScope.launch {
             marsUiState = MarsUiState.Loading
             marsUiState = try {
-                val listResult = MarsApi.retrofitService.getPhotos()
+                val listResult = marsPhotosRepository.getMarsPhotos()
                 MarsUiState.Success(
                     "Success: ${listResult.size} Mars photos retrieved"
                 )
             }
             catch (e: IOException) { MarsUiState.Error }
             catch (e: HttpException) { MarsUiState.Error }
+        }
+    }
+
+    //Below the function getMarsPhotos(), type the code for the companion object.
+    //A companion object helps us by having a single instance of an object that is used by everyone without needing to create a new instance of an expensive object. This is an implementation detail, and separating it lets us make changes without impacting other parts of the app's code.
+    //
+    //The APPLICATION_KEY is part of the ViewModelProvider.AndroidViewModelFactory.Companion object and is used to find the app's MarsPhotosApplication object, which has the container property used to retrieve the repository used for dependency injection.
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as MarsPhotosApplication)
+                val marsPhotosRepository = application.container.marsPhotosRepository
+                MarsViewModel(marsPhotosRepository = marsPhotosRepository)
+            }
         }
     }
 }
