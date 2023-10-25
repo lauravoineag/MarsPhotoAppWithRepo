@@ -9,9 +9,11 @@ import retrofit2.Retrofit
 interface AppContainer {
     val marsPhotosRepository:MarsPhotosRepository
 }
-//code moved from MarsApiService
-//he DefaultAppContainer class implements the interface AppContainer,
-// so we need to override the marsPhotosRepository property.
+/**code moved from MarsApiService -
+ * Implementation for the Dependency Injection container at the application level.
+ *DefaultAppContainer class implements the interface AppContainer,so we need to override the marsPhotosRepository property.
+ * Variables are initialized lazily and the same instance is shared across the whole app.
+ */
 class DefaultAppContainer : AppContainer {
 
     private val baseUrl = "https://android-kotlin-fun-mars-server.appspot.com"
@@ -23,10 +25,16 @@ class DefaultAppContainer : AppContainer {
         .baseUrl(baseUrl)
         .build()
 
+    /**
+     * Retrofit service object for creating api calls
+     */
     private val retrofitService: MarsApiService by lazy {
         retrofit.create(MarsApiService::class.java)
     }
 
+    /**
+     * DI implementation for Mars photos repository
+     */
     override val marsPhotosRepository: MarsPhotosRepository by lazy {
         NetworkMarsPhotosRepository(retrofitService)
     }
